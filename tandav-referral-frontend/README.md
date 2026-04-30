@@ -1,59 +1,101 @@
-# TandavReferralFrontend
+# TriLink Referral Network — Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.0.
+Angular 17+ SPA for the TriLink referral network. Includes a user portal and a separate admin portal, each with their own layout shell.
 
-## Development server
+**Deployment stack:** Angular (Vercel) → Node API (Render) → PostgreSQL (Supabase)
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Local Development
 
 ```bash
-ng generate component component-name
+npm install
+ng serve          # dev server at http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+API calls are proxied to `http://localhost:3000` via `proxy.conf.json` — the backend must be running locally.
 
 ```bash
-ng generate --help
+ng build                              # production build → dist/tandav-referral-frontend/browser/
+ng build --configuration development  # dev build with source maps
+ng test                               # Karma unit tests
 ```
 
-## Building
+---
 
-To build the project run:
+## Environment Configuration
 
-```bash
-ng build
+| File | Used when |
+|------|-----------|
+| `src/environments/environment.ts` | `ng serve` (dev) |
+| `src/environments/environment.prod.ts` | `ng build` (production) |
+
+**Before deploying to Vercel**, update `environment.prod.ts` with your Render service URL:
+
+```typescript
+export const environment = {
+  production: true,
+  apiUrl:  'https://YOUR_APP.onrender.com/api',   // ← replace
+  apiBase: 'https://YOUR_APP.onrender.com',        // ← replace
+};
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+- `apiUrl` — base path for all API calls (used by `ApiService`)
+- `apiBase` — base URL for constructing image/file URLs returned by the API (KYC docs, profile photos)
 
-## Running unit tests
+---
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Vercel Deployment
 
-```bash
-ng test
+### 1. Push to GitHub
+
+Vercel deploys from a Git repository.
+
+### 2. Import the project on vercel.com
+
+- **Framework preset:** Angular (auto-detected)
+- **Root directory:** `tandav-referral-frontend`
+- Vercel reads `vercel.json` which sets the build command, output directory, and SPA rewrites automatically — no manual configuration needed
+
+### 3. Set environment variables on Vercel (optional)
+
+No runtime environment variables are needed by the Angular build — all config is baked in at build time via `environment.prod.ts`. If you want to avoid committing the Render URL, you can use Angular's `fileReplacements` or a build-time define — but for most projects simply editing `environment.prod.ts` before each deploy is sufficient.
+
+### 4. Set FRONTEND_URL on Render
+
+After Vercel assigns your URL (e.g. `https://trilink.vercel.app`), go to the Render dashboard for the API service and add/update:
+
+```
+FRONTEND_URL=https://trilink.vercel.app
 ```
 
-## Running end-to-end tests
+This is what the API uses to whitelist CORS. Redeploy the Render service after updating it.
 
-For end-to-end (e2e) testing, run:
+### 5. Verify
 
-```bash
-ng e2e
+Open your Vercel URL, log in with the seeded credentials, and check the browser's Network tab — API calls should return `200` with no CORS errors.
+
+---
+
+## Project Notes
+
+- **Two portals, two layout shells** — user portal (`/`) uses `layout.ts` (red sidebar); admin portal (`/admin`) uses `admin-layout.ts` (dark navy sidebar). Auth pages (`/login`, `/register`, `/admin/login`) are standalone.
+- **All HTTP calls go through `ApiService`** — never use `HttpClient` directly in components.
+- **Auth state** is held in `AuthService` signals (`currentUser`, `currentAdmin`) and persisted in `localStorage` under `trilink_*` keys.
+- **Parallel data loading** — pages that need multiple API calls use `forkJoin`. See `income.ts` and `admin-reports.ts` for the pattern.
+- **Inline confirmations** — no `confirm()` dialogs. Destructive actions use `deletingId` / `pendingRejectId` state with inline confirm/cancel buttons.
+- **Logo** — `trilink-logo.svg` is served from `/public` and referenced as `/trilink-logo.svg` in templates.
+
+---
+
+## Default Credentials (after seeding the backend)
+
 ```
+Member login  →  /login
+  Mobile  : 9000000000
+  Password: Root@123456
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Admin login   →  /admin/login
+  Email   : admin@trilink.com
+  Password: Admin@123456
+```

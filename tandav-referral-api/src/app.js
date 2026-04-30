@@ -21,8 +21,11 @@ app.use(helmet({
 }));
 
 // ── CORS ───────────────────────────────────────────────────────────
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:4200').split(',');
-app.use(cors({
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:4200')
+  .split(',')
+  .map(o => o.trim());
+
+const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
@@ -31,9 +34,14 @@ app.use(cors({
     }
   },
   credentials: true,
-  methods:     ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  methods:        ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-}));
+  exposedHeaders: ['Content-Disposition'],
+};
+
+// Respond to preflight OPTIONS requests before any other middleware
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 // ── Body parsing ───────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
