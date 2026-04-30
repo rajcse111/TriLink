@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <!-- Blue-to-purple gradient, top-left to bottom-right -->
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+
+    <!-- Soft drop shadow for depth -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#7C3AED" flood-opacity="0.35"/>
+    </filter>
+
+    <!-- Subtle inner highlight mask -->
+    <linearGradient id="shine" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%"   stop-color="white" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Filled equilateral triangle — slight rounded corners via path -->
+  <path
+    d="M60 10 L107 90 Q107 96 101 96 L19 96 Q13 96 13 90 Z"
+    fill="url(#g)"
+    filter="url(#shadow)"
+  />
+
+  <!-- Shine overlay for flat-but-polished look -->
+  <path
+    d="M60 10 L107 90 Q107 96 101 96 L19 96 Q13 96 13 90 Z"
+    fill="url(#shine)"
+  />
+
+  <!-- ── Internal 1-to-3 network ── -->
+
+  <!-- Connection lines (drawn before nodes so nodes sit on top) -->
+  <!-- Root → left child -->
+  <line x1="60" y1="40" x2="35" y2="73" stroke="white" stroke-width="2.2" stroke-linecap="round" opacity="0.55"/>
+  <!-- Root → middle child -->
+  <line x1="60" y1="40" x2="60" y2="73" stroke="white" stroke-width="2.2" stroke-linecap="round" opacity="0.55"/>
+  <!-- Root → right child -->
+  <line x1="60" y1="40" x2="85" y2="73" stroke="white" stroke-width="2.2" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- Root node (level 1) — slightly larger, brighter -->
+  <circle cx="60" cy="40" r="6.5" fill="white" opacity="0.97"/>
+
+  <!-- Child nodes (level 2) -->
+  <circle cx="35" cy="73" r="5.5" fill="white" opacity="0.88"/>
+  <circle cx="60" cy="73" r="5.5" fill="white" opacity="0.88"/>
+  <circle cx="85" cy="73" r="5.5" fill="white" opacity="0.88"/>
+
+  <!-- Subtle horizontal connector between children — hints at the network layer -->
+  <line x1="35" y1="73" x2="85" y2="73" stroke="white" stroke-width="1.4" stroke-linecap="round" opacity="0.2"/>
+</svg>

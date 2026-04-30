@@ -1,0 +1,101 @@
+<div class="page-wrapper">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h2 style="margin:0">Meetings</h2>
+    <button mat-raised-button color="primary" (click)="showForm=!showForm;editingId=null;resetForm()">
+      <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon> {{ showForm ? 'Cancel' : 'Schedule Meeting' }}
+    </button>
+  </div>
+
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+  @if (success) { <div class="alert success">{{ success }}</div> }
+
+  @if (showForm) {
+    <div class="card">
+      <div class="card-title">{{ editingId ? 'Edit' : 'Schedule' }} Meeting</div>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Date *</mat-label>
+          <input matInput [(ngModel)]="form.meeting_date" type="date" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Time *</mat-label>
+          <input matInput [(ngModel)]="form.meeting_time" type="time" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Type</mat-label>
+          <mat-select [(ngModel)]="form.meeting_type">
+            <mat-option value="city">City</mat-option>
+            <mat-option value="state">State</mat-option>
+            <mat-option value="national">National</mat-option>
+            <mat-option value="online">Online</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Contact Person *</mat-label>
+          <input matInput [(ngModel)]="form.contact_person" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Mobile *</mat-label>
+          <input matInput [(ngModel)]="form.mobile_no" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput [(ngModel)]="form.email" type="email" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Venue</mat-label>
+          <input matInput [(ngModel)]="form.venue" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>City</mat-label>
+          <input matInput [(ngModel)]="form.city" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>State</mat-label>
+          <input matInput [(ngModel)]="form.state" />
+        </mat-form-field>
+      </div>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea matInput [(ngModel)]="form.description" rows="2"></textarea>
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="save()" [disabled]="saving">
+        @if (saving) { <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner> }
+        {{ editingId ? 'Update' : 'Create' }} Meeting
+      </button>
+    </div>
+  }
+
+  @if (loading) { <div class="loading-overlay"><mat-spinner diameter="40"></mat-spinner></div> }
+  @else {
+    @for (m of meetings; track m.id) {
+      <div class="card" style="border-left:4px solid var(--primary)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-weight:700;font-size:1rem">{{ m.description || 'Meeting' }} <span class="badge pending">{{ m.meeting_type | titlecase }}</span></div>
+            <div style="color:var(--text-muted);font-size:.85rem;margin-top:4px">
+              📅 {{ m.meeting_date | date:'fullDate' }} @ {{ m.meeting_time }}
+              &nbsp;|&nbsp; 📍 {{ m.venue }}, {{ m.city }}, {{ m.state }}
+              &nbsp;|&nbsp; 📞 {{ m.contact_person }} ({{ m.mobile_no }})
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button mat-icon-button color="primary" (click)="edit(m)"><mat-icon>edit</mat-icon></button>
+            @if (deletingId === m.id) {
+              <span style="font-size:.8rem;color:var(--text-muted)">Delete?</span>
+              <button mat-icon-button color="warn" title="Confirm" (click)="delete(m.id)">
+                <mat-icon>check</mat-icon>
+              </button>
+              <button mat-icon-button title="Cancel" (click)="cancelDelete()">
+                <mat-icon>close</mat-icon>
+              </button>
+            } @else {
+              <button mat-icon-button color="warn" (click)="confirmDelete(m.id)"><mat-icon>delete</mat-icon></button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+    @empty { <div class="card" style="text-align:center;color:var(--text-muted);padding:48px">No meetings scheduled.</div> }
+  }
+</div>

@@ -1,0 +1,108 @@
+<div class="page-wrapper">
+  <h2 style="margin:0 0 20px">Income</h2>
+
+  @if (loading) { <div class="loading-overlay"><mat-spinner diameter="40"></mat-spinner></div> }
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+
+  @if (overview) {
+    <div class="stat-grid">
+      <div class="stat-card success">
+        <div class="stat-label">Total Earned</div>
+        <div class="stat-value">₹{{ overview.wallet?.total_earned | number:'1.0-0' }}</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-label">Available</div>
+        <div class="stat-value">₹{{ overview.wallet?.balance | number:'1.0-0' }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Withdrawn</div>
+        <div class="stat-value">₹{{ overview.wallet?.total_withdrawn | number:'1.0-0' }}</div>
+      </div>
+      @for (item of overview.incomeByType; track item.income_type) {
+        <div class="stat-card info">
+          <div class="stat-label">{{ item.income_type | titlecase }}</div>
+          <div class="stat-value">₹{{ item.total_amount | number:'1.0-0' }}</div>
+          <div class="stat-sub">{{ item.transaction_count }} transactions</div>
+        </div>
+      }
+    </div>
+  }
+
+  <mat-tab-group>
+
+    <!-- Level Income -->
+    <mat-tab label="Level Income">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>Level</th><th>Transactions</th><th>Total Income</th><th>Last Received</th></tr>
+            </thead>
+            <tbody>
+              @for (l of levelSummary; track l.level) {
+                <tr>
+                  <td><strong>Level {{ l.level }}</strong></td>
+                  <td>{{ l.transactions }}</td>
+                  <td style="color:var(--success);font-weight:600">₹{{ l.total_income | number:'1.2-2' }}</td>
+                  <td>{{ l.last_received | date:'dd MMM yyyy' }}</td>
+                </tr>
+              }
+              @empty { <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:32px">No level income yet</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Daily Income -->
+    <mat-tab label="Daily Report">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Level Income</th><th>Stage Bonus</th><th>Total</th><th>Count</th></tr>
+            </thead>
+            <tbody>
+              @for (d of dailyIncome; track d.date) {
+                <tr>
+                  <td>{{ d.date | date:'dd MMM yyyy' }}</td>
+                  <td>₹{{ d.level_income | number:'1.2-2' }}</td>
+                  <td>₹{{ d.stage_bonus  | number:'1.2-2' }}</td>
+                  <td style="font-weight:600;color:var(--success)">₹{{ d.total | number:'1.2-2' }}</td>
+                  <td>{{ d.transactions }}</td>
+                </tr>
+              }
+              @empty { <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No daily income records</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- History -->
+    <mat-tab label="Full History">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Type</th><th>From</th><th>Level</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+              @for (h of history; track h.id) {
+                <tr>
+                  <td>{{ h.created_at | date:'dd MMM yyyy HH:mm' }}</td>
+                  <td><span class="badge verified">{{ h.income_type }}</span></td>
+                  <td>{{ h.from_name || '—' }}</td>
+                  <td>{{ h.level || '—' }}</td>
+                  <td style="color:var(--success);font-weight:600">₹{{ h.amount | number:'1.2-2' }}</td>
+                </tr>
+              }
+              @empty { <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No income history</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

@@ -1,0 +1,90 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <img src="/trilink-logo.svg" alt="TriLink Logo" style="height:56px;margin-bottom:8px">
+      <h1>TriLink</h1>
+      <p>Referral Network Portal</p>
+    </div>
+
+    @if (error) {
+      <div class="alert error" style="margin-bottom:16px">{{ error }}</div>
+    }
+
+    <mat-tab-group animationDuration="200ms" (selectedIndexChange)="clearError()">
+
+      <!-- Password Tab -->
+      <mat-tab label="Password Login">
+        <div style="padding-top:20px">
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Mobile / Email</mat-label>
+            <mat-icon matPrefix>person</mat-icon>
+            <input matInput [(ngModel)]="identifier" placeholder="9999999999 or email@example.com" />
+          </mat-form-field>
+
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Password</mat-label>
+            <mat-icon matPrefix>lock</mat-icon>
+            <input matInput [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" />
+            <button mat-icon-button matSuffix (click)="showPassword = !showPassword" type="button">
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" class="full-width" style="height:48px;font-size:1rem"
+            (click)="loginWithPassword()" [disabled]="loading">
+            @if (loading) { <mat-spinner diameter="20" style="display:inline-block;margin-right:8px"></mat-spinner> }
+            Login
+          </button>
+        </div>
+      </mat-tab>
+
+      <!-- OTP Tab -->
+      <mat-tab label="OTP Login">
+        <div style="padding-top:20px">
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Mobile Number</mat-label>
+            <mat-icon matPrefix>phone</mat-icon>
+            <input matInput [(ngModel)]="mobile" placeholder="10-digit mobile number" maxlength="10" [disabled]="otpSent" />
+          </mat-form-field>
+
+          @if (!otpSent) {
+            <button mat-raised-button color="primary" class="full-width" style="height:48px"
+              (click)="sendOTP()" [disabled]="loading">
+              @if (loading) { <mat-spinner diameter="20" style="display:inline-block;margin-right:8px"></mat-spinner> }
+              Send OTP
+            </button>
+          } @else {
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Enter OTP</mat-label>
+              <mat-icon matPrefix>pin</mat-icon>
+              <input matInput [(ngModel)]="otp" maxlength="6" placeholder="6-digit OTP" />
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" class="full-width" style="height:48px;margin-bottom:8px"
+              (click)="verifyOTP()" [disabled]="loading">
+              @if (loading) { <mat-spinner diameter="20" style="display:inline-block;margin-right:8px"></mat-spinner> }
+              Verify &amp; Login
+            </button>
+
+            <div style="text-align:center;font-size:.85rem;color:#6b7280">
+              @if (otpTimer > 0) {
+                Resend OTP in {{ otpTimer }}s
+              } @else {
+                <a href="javascript:void(0)" (click)="otpSent=false;otp=''" style="color:var(--primary)">Resend OTP</a>
+              }
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+
+    <div style="text-align:center;margin-top:20px;font-size:.9rem;color:#6b7280">
+      New member? <a routerLink="/register" style="color:var(--primary);font-weight:600">Register here</a>
+    </div>
+
+    <div style="text-align:center;margin-top:8px;font-size:.85rem">
+      <a routerLink="/admin/login" style="color:#9e9e9e">Admin Login →</a>
+    </div>
+  </div>
+</div>

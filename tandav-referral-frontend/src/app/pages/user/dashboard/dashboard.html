@@ -1,0 +1,110 @@
+<div class="page-wrapper">
+  <h2 style="margin:0 0 20px;font-size:1.5rem;color:var(--text)">
+    Welcome, {{ auth.currentUser()?.fullName || 'Member' }}!
+  </h2>
+
+  @if (loading) {
+    <div class="loading-overlay"><mat-spinner diameter="40"></mat-spinner> Loading dashboard...</div>
+  } @else if (error) {
+    <div class="alert error">{{ error }} <button mat-button (click)="load()">Retry</button></div>
+  } @else if (data) {
+
+    <!-- Activation Banner -->
+    @if (!data.is_active) {
+      <div class="alert warning" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <span>⚠️ Your account is <strong>not activated</strong>. Activate to start earning.</span>
+        <a routerLink="/profile" mat-raised-button color="accent">Activate Account</a>
+      </div>
+    }
+
+    <!-- KYC Banner -->
+    @if (data.kyc_status !== 'verified') {
+      <div class="alert info" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <span>📋 KYC status: <strong>{{ data.kyc_status || 'Not submitted' }}</strong>. Complete KYC to enable withdrawals.</span>
+        <a routerLink="/kyc" mat-raised-button color="primary">Complete KYC</a>
+      </div>
+    }
+
+    <!-- Stats Grid -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Current Stage</div>
+        <div class="stat-value">{{ data.current_stage || 0 }}</div>
+        <div class="stat-sub">of 13 stages</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-label">Wallet Balance</div>
+        <div class="stat-value">₹{{ data.wallet_balance | number:'1.0-0' }}</div>
+        <div class="stat-sub">Available to withdraw</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label">Total Earned</div>
+        <div class="stat-value">₹{{ data.total_earned | number:'1.0-0' }}</div>
+        <div class="stat-sub">Lifetime income</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-label">Total Withdrawn</div>
+        <div class="stat-value">₹{{ data.total_withdrawn | number:'1.0-0' }}</div>
+        <div class="stat-sub">Processed withdrawals</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Direct Referrals</div>
+        <div class="stat-value">{{ data.direct_referrals || 0 }}</div>
+        <div class="stat-sub">Active: {{ data.active_direct || 0 }}</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-label">Total Team</div>
+        <div class="stat-value">{{ data.total_team || 0 }}</div>
+        <div class="stat-sub">All levels</div>
+      </div>
+    </div>
+
+    <!-- Stage Progress -->
+    @if (data.stageProgress) {
+      <div class="card">
+        <div class="card-title"><mat-icon>military_tech</mat-icon> Stage Progress</div>
+        <div style="display:flex;justify-content:space-between;font-size:.85rem;color:var(--text-muted);margin-bottom:8px">
+          <span>Stage {{ data.current_stage }}</span>
+          <span>{{ data.stageProgress.current }} / {{ data.stageProgress.required }} active members</span>
+        </div>
+        <div style="background:#eee;border-radius:4px;height:10px;overflow:hidden">
+          <div style="background:linear-gradient(90deg,var(--primary),var(--accent));height:100%;border-radius:4px;transition:width .4s"
+               [style.width]="stageProgress + '%'"></div>
+        </div>
+        <div style="font-size:.8rem;color:var(--text-muted);margin-top:6px">
+          {{ stageProgress }}% complete — {{ data.stageProgress.required - data.stageProgress.current }} more active members needed to advance
+        </div>
+      </div>
+    }
+
+    <!-- Referral Code Card -->
+    <div class="card">
+      <div class="card-title"><mat-icon>share</mat-icon> Your Referral Code</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <code style="font-size:1.4rem;font-weight:800;color:var(--primary);letter-spacing:2px;background:#fff8f8;padding:10px 20px;border-radius:8px;border:2px dashed var(--primary)">
+          {{ data.referral_code }}
+        </code>
+        <button mat-raised-button color="primary" (click)="copyCode(data.referral_code)">
+          <mat-icon>{{ copied() ? 'check' : 'content_copy' }}</mat-icon>
+          {{ copied() ? 'Copied!' : 'Copy Code' }}
+        </button>
+        <a routerLink="/genealogy" mat-stroked-button color="primary">
+          <mat-icon>hub</mat-icon> View Network
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="card-title"><mat-icon>bolt</mat-icon> Quick Actions</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a routerLink="/wallet"    mat-raised-button color="accent">💰 Wallet</a>
+        <a routerLink="/income"    mat-raised-button color="primary">📈 Income</a>
+        <a routerLink="/genealogy" mat-raised-button>🌳 My Network</a>
+        <a routerLink="/meetings"  mat-raised-button>📅 Meetings</a>
+        <a routerLink="/complaints" mat-raised-button>💬 Support</a>
+      </div>
+    </div>
+
+  }
+</div>

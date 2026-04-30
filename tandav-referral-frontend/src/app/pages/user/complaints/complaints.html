@@ -1,0 +1,64 @@
+<div class="page-wrapper">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h2 style="margin:0">Support &amp; Complaints</h2>
+    <button mat-raised-button color="primary" (click)="showForm=!showForm">
+      <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon> {{ showForm ? 'Cancel' : 'New Complaint' }}
+    </button>
+  </div>
+
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+  @if (success) { <div class="alert success">{{ success }}</div> }
+
+  @if (showForm) {
+    <div class="card">
+      <div class="card-title"><mat-icon>support_agent</mat-icon> Submit Complaint</div>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Subject *</mat-label>
+        <input matInput [(ngModel)]="form.subject" />
+      </mat-form-field>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Category</mat-label>
+        <mat-select [(ngModel)]="form.category">
+          <mat-option value="payment">Payment Issue</mat-option>
+          <mat-option value="technical">Technical Issue</mat-option>
+          <mat-option value="account">Account Issue</mat-option>
+          <mat-option value="withdrawal">Withdrawal Issue</mat-option>
+          <mat-option value="other">Other</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Description *</mat-label>
+        <textarea matInput [(ngModel)]="form.description" rows="4" placeholder="Describe your issue in detail..."></textarea>
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="submit()" [disabled]="submitting">
+        @if (submitting) { <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner> }
+        Submit Complaint
+      </button>
+    </div>
+  }
+
+  @if (loading) { <div class="loading-overlay"><mat-spinner diameter="32"></mat-spinner></div> }
+  @else {
+    @if (complaints.length === 0) {
+      <div class="card" style="text-align:center;color:var(--text-muted);padding:48px">No complaints submitted yet.</div>
+    } @else {
+      @for (c of complaints; track c.id) {
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+            <div>
+              <div style="font-weight:700;margin-bottom:4px">{{ c.subject }}</div>
+              <div style="font-size:.85rem;color:var(--text-muted)">{{ c.category | titlecase }} | {{ c.created_at | date:'dd MMM yyyy' }}</div>
+            </div>
+            <span class="badge" [class]="c.status === 'resolved' ? 'active' : c.status === 'closed' ? 'verified' : 'pending'">{{ c.status }}</span>
+          </div>
+          <div style="margin-top:12px;font-size:.9rem;color:var(--text-muted)">{{ c.description }}</div>
+          @if (c.admin_response) {
+            <div style="margin-top:12px;background:#f0f4ff;border-left:3px solid var(--info);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.9rem">
+              <strong>Admin Response:</strong> {{ c.admin_response }}
+            </div>
+          }
+        </div>
+      }
+    }
+  }
+</div>

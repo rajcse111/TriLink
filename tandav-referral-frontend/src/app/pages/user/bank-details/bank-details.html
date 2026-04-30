@@ -1,0 +1,84 @@
+<div class="page-wrapper">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h2 style="margin:0">Bank Details</h2>
+    <button mat-raised-button color="primary" (click)="showForm=!showForm">
+      <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon> {{ showForm ? 'Cancel' : 'Add Bank' }}
+    </button>
+  </div>
+
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+  @if (success) { <div class="alert success">{{ success }}</div> }
+
+  @if (showForm) {
+    <div class="card">
+      <div class="card-title"><mat-icon>account_balance</mat-icon> Add Bank Account</div>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Account Holder Name *</mat-label>
+          <input matInput [(ngModel)]="form.account_holder_name" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Account Number *</mat-label>
+          <input matInput [(ngModel)]="form.account_number" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>IFSC Code *</mat-label>
+          <input matInput [(ngModel)]="form.ifsc_code" style="text-transform:uppercase" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Bank Name *</mat-label>
+          <input matInput [(ngModel)]="form.bank_name" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Branch Name</mat-label>
+          <input matInput [(ngModel)]="form.branch_name" />
+        </mat-form-field>
+      </div>
+      <mat-checkbox [(ngModel)]="form.is_primary" color="primary" style="margin-bottom:16px">
+        Set as primary account
+      </mat-checkbox><br>
+      <button mat-raised-button color="primary" (click)="add()" [disabled]="saving">
+        @if (saving) { <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner> }
+        Save Bank Account
+      </button>
+    </div>
+  }
+
+  @if (loading) { <div class="loading-overlay"><mat-spinner diameter="32"></mat-spinner></div> }
+  @else {
+    @if (banks.length === 0) {
+      <div class="card" style="text-align:center;color:var(--text-muted);padding:48px">
+        No bank accounts added yet.
+      </div>
+    } @else {
+      @for (b of banks; track b.id) {
+        <div class="card" style="border-left:4px solid {{ b.is_primary ? 'var(--success)' : 'var(--border)' }}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div style="font-weight:700;font-size:1rem">{{ b.bank_name }}</div>
+              <div style="color:var(--text-muted);font-size:.85rem">{{ b.account_holder_name }}</div>
+              <div style="font-family:monospace;margin:6px 0">{{ b.account_number }}</div>
+              <div style="font-size:.85rem;color:var(--text-muted)">IFSC: {{ b.ifsc_code }} {{ b.branch_name ? '| ' + b.branch_name : '' }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              @if (b.is_primary) { <span class="badge active">Primary</span> }
+              @if (deletingId === b.id) {
+                <span style="font-size:.8rem;color:var(--text-muted)">Remove?</span>
+                <button mat-icon-button color="warn" title="Confirm" (click)="delete(b.id)">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button mat-icon-button title="Cancel" (click)="cancelDelete()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              } @else {
+                <button mat-icon-button color="warn" (click)="confirmDelete(b.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

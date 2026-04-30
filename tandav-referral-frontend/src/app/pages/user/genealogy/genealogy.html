@@ -1,0 +1,190 @@
+<div class="page-wrapper">
+  <h2 style="margin:0 0 20px">My Network</h2>
+
+  <!-- Sponsor Card -->
+  @if (sponsor) {
+    <div class="card" style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;flex-shrink:0">
+        {{ (sponsor.full_name || 'S')[0] }}
+      </div>
+      <div>
+        <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Your Direct Sponsor</div>
+        <div style="font-weight:700">{{ sponsor.full_name }}</div>
+        <div style="font-size:.85rem;color:var(--text-muted)">{{ sponsor.associate_id }} | {{ sponsor.mobile }}</div>
+      </div>
+      <span class="badge" style="margin-left:auto" [class.active]="sponsor.is_active" [class.inactive]="!sponsor.is_active">
+        {{ sponsor.is_active ? 'Active' : 'Inactive' }}
+      </span>
+    </div>
+  }
+
+  <mat-tab-group>
+
+    <!-- Tree View -->
+    <mat-tab label="Tree View">
+      <div style="padding-top:16px;overflow-x:auto">
+        @if (treeLoading) { <div class="loading-overlay"><mat-spinner diameter="32"></mat-spinner></div> }
+        @else if (treeData) {
+          <!-- Summary counts -->
+          <div class="stat-grid" style="margin-bottom:20px">
+            <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">{{ treeData.counts?.total || 0 }}</div></div>
+            <div class="stat-card success"><div class="stat-label">Active</div><div class="stat-value">{{ treeData.counts?.active || 0 }}</div></div>
+            <div class="stat-card"><div class="stat-label">Left</div><div class="stat-value">{{ treeData.counts?.left || 0 }}</div></div>
+            <div class="stat-card"><div class="stat-label">Middle</div><div class="stat-value">{{ treeData.counts?.middle || 0 }}</div></div>
+            <div class="stat-card"><div class="stat-label">Right</div><div class="stat-value">{{ treeData.counts?.right || 0 }}</div></div>
+          </div>
+
+          <!-- Tree nodes -->
+          <div style="overflow-x:auto;padding-bottom:20px">
+            <ng-container *ngTemplateOutlet="nodeTemplate; context: { $implicit: treeData.tree }"></ng-container>
+          </div>
+
+          <ng-template #nodeTemplate let-node>
+            @if (node) {
+              <div class="tree-node">
+                <div class="node-card" [class.active]="node.is_active" [class.inactive]="!node.is_active">
+                  <div class="node-id">{{ node.associate_id }}</div>
+                  <div class="node-name">{{ node.full_name }}</div>
+                  <div class="node-stage">Stage {{ node.current_stage || 0 }}</div>
+                  <div class="node-stage">{{ node.position | titlecase }}</div>
+                </div>
+                @if (node.children?.length) {
+                  <div class="node-connector"></div>
+                  <div class="node-children">
+                    @for (child of node.children; track child.id) {
+                      <ng-container *ngTemplateOutlet="nodeTemplate; context: { $implicit: child }"></ng-container>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </ng-template>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- All Team -->
+    <mat-tab label="All Team ({{ allTotal }})">
+      <div style="padding-top:16px">
+        @if (loading) { <div class="loading-overlay"><mat-spinner diameter="32"></mat-spinner></div> }
+        @else {
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Associate ID</th><th>Name</th><th>Level</th><th>Position</th><th>Stage</th><th>Sponsor</th><th>Status</th><th>Joined</th></tr>
+              </thead>
+              <tbody>
+                @for (m of allTeam; track m.id) {
+                  <tr>
+                    <td><code>{{ m.associate_id }}</code></td>
+                    <td>{{ m.full_name }}</td>
+                    <td>{{ m.level }}</td>
+                    <td>{{ m.position | titlecase }}</td>
+                    <td>{{ m.current_stage }}</td>
+                    <td>{{ m.sponsor_name }}</td>
+                    <td><span class="badge" [class.active]="m.is_active" [class.inactive]="!m.is_active">{{ m.is_active ? 'Active' : 'Inactive' }}</span></td>
+                    <td>{{ m.registration_date | date:'dd MMM yy' }}</td>
+                  </tr>
+                }
+                @empty { <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px">No team members yet</td></tr> }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- Left Team -->
+    <mat-tab label="Left ({{ leftTeam.length }})">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Level</th><th>Stage</th><th>Status</th></tr></thead>
+            <tbody>
+              @for (m of leftTeam; track m.id) {
+                <tr>
+                  <td><code>{{ m.associate_id }}</code></td><td>{{ m.full_name }}</td>
+                  <td>{{ m.depth || m.level }}</td><td>{{ m.current_stage }}</td>
+                  <td><span class="badge" [class.active]="m.is_active" [class.inactive]="!m.is_active">{{ m.is_active ? 'Active' : 'Inactive' }}</span></td>
+                </tr>
+              }
+              @empty { <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No left team members</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Middle Team -->
+    <mat-tab label="Middle ({{ middleTeam.length }})">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Level</th><th>Stage</th><th>Status</th></tr></thead>
+            <tbody>
+              @for (m of middleTeam; track m.id) {
+                <tr>
+                  <td><code>{{ m.associate_id }}</code></td><td>{{ m.full_name }}</td>
+                  <td>{{ m.depth || m.level }}</td><td>{{ m.current_stage }}</td>
+                  <td><span class="badge" [class.active]="m.is_active" [class.inactive]="!m.is_active">{{ m.is_active ? 'Active' : 'Inactive' }}</span></td>
+                </tr>
+              }
+              @empty { <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No middle team members</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Right Team -->
+    <mat-tab label="Right ({{ rightTeam.length }})">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Level</th><th>Stage</th><th>Status</th></tr></thead>
+            <tbody>
+              @for (m of rightTeam; track m.id) {
+                <tr>
+                  <td><code>{{ m.associate_id }}</code></td><td>{{ m.full_name }}</td>
+                  <td>{{ m.depth || m.level }}</td><td>{{ m.current_stage }}</td>
+                  <td><span class="badge" [class.active]="m.is_active" [class.inactive]="!m.is_active">{{ m.is_active ? 'Active' : 'Inactive' }}</span></td>
+                </tr>
+              }
+              @empty { <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No right team members</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Level Genealogy -->
+    <mat-tab label="Levels">
+      <div style="padding-top:16px">
+        @for (level of levelData; track level.level) {
+          <div class="card" style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h4 style="margin:0;color:var(--primary)">Level {{ level.level }}</h4>
+              <span style="font-size:.85rem;color:var(--text-muted)">{{ level.members?.length || 0 }} members</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Stage</th><th>Status</th></tr></thead>
+                <tbody>
+                  @for (m of level.members; track m.id) {
+                    <tr>
+                      <td><code>{{ m.associate_id }}</code></td><td>{{ m.full_name }}</td>
+                      <td>{{ m.current_stage }}</td>
+                      <td><span class="badge" [class.active]="m.is_active" [class.inactive]="!m.is_active">{{ m.is_active ? 'Active' : 'Inactive' }}</span></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+        @empty { <div style="text-align:center;color:var(--text-muted);padding:48px">No level data available</div> }
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

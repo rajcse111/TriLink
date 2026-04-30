@@ -1,0 +1,71 @@
+<div class="page-wrapper">
+  <h2 style="margin:0 0 20px">KYC Verification</h2>
+
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+  @if (success) { <div class="alert success">{{ success }}</div> }
+
+  <!-- Submit KYC -->
+  <div class="card">
+    <div class="card-title"><mat-icon>upload_file</mat-icon> Submit Document</div>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Document Type</mat-label>
+        <mat-select [(ngModel)]="form.document_type">
+          <mat-option value="aadhar">Aadhar Card</mat-option>
+          <mat-option value="pan">PAN Card</mat-option>
+          <mat-option value="passport">Passport</mat-option>
+          <mat-option value="driving_license">Driving License</mat-option>
+          <mat-option value="voter_id">Voter ID</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Document Number</mat-label>
+        <input matInput [(ngModel)]="form.document_number" style="text-transform:uppercase" />
+      </mat-form-field>
+    </div>
+    <div class="form-row" style="margin-bottom:16px">
+      <div>
+        <label style="display:block;font-size:.85rem;color:var(--text-muted);margin-bottom:6px">Front Image</label>
+        <input type="file" accept="image/*,.pdf" (change)="onFrontFile($event)" />
+        @if (frontFile) { <span style="font-size:.8rem;color:var(--success)">✓ {{ frontFile.name }}</span> }
+      </div>
+      <div>
+        <label style="display:block;font-size:.85rem;color:var(--text-muted);margin-bottom:6px">Back Image</label>
+        <input type="file" accept="image/*,.pdf" (change)="onBackFile($event)" />
+        @if (backFile) { <span style="font-size:.8rem;color:var(--success)">✓ {{ backFile.name }}</span> }
+      </div>
+    </div>
+    <button mat-raised-button color="primary" (click)="submit()" [disabled]="submitting">
+      @if (submitting) { <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner> }
+      Submit KYC
+    </button>
+  </div>
+
+  <!-- KYC History -->
+  <div class="card">
+    <div class="card-title"><mat-icon>history</mat-icon> Submission History</div>
+    @if (loading) { <div class="loading-overlay"><mat-spinner diameter="32"></mat-spinner></div> }
+    @else if (kycList.length === 0) {
+      <div style="text-align:center;color:var(--text-muted);padding:32px">No KYC documents submitted yet.</div>
+    } @else {
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Type</th><th>Number</th><th>Status</th><th>Submitted</th><th>Note</th></tr>
+          </thead>
+          <tbody>
+            @for (k of kycList; track k.id) {
+              <tr>
+                <td>{{ k.document_type | titlecase }}</td>
+                <td>{{ k.document_number || '—' }}</td>
+                <td><span class="badge" [class]="k.status">{{ k.status }}</span></td>
+                <td>{{ k.created_at | date:'mediumDate' }}</td>
+                <td>{{ k.rejection_reason || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

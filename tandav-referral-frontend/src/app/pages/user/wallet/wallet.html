@@ -1,0 +1,115 @@
+<div class="page-wrapper">
+  <h2 style="margin:0 0 20px">Wallet</h2>
+
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+  @if (success) { <div class="alert success">{{ success }}</div> }
+
+  <!-- Balance Cards -->
+  @if (loading) { <div class="loading-overlay"><mat-spinner diameter="40"></mat-spinner></div> }
+  @else if (balance) {
+    <div class="stat-grid">
+      <div class="stat-card accent">
+        <div class="stat-label">Available Balance</div>
+        <div class="stat-value">₹{{ balance.balance | number:'1.2-2' }}</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label">Total Earned</div>
+        <div class="stat-value">₹{{ balance.total_earned | number:'1.2-2' }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Withdrawn</div>
+        <div class="stat-value">₹{{ balance.total_withdrawn | number:'1.2-2' }}</div>
+      </div>
+    </div>
+  }
+
+  <mat-tab-group>
+
+    <!-- Transactions -->
+    <mat-tab label="Transactions">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Balance</th></tr>
+            </thead>
+            <tbody>
+              @for (t of transactions; track t.id) {
+                <tr>
+                  <td>{{ t.created_at | date:'dd MMM yyyy HH:mm' }}</td>
+                  <td><span class="badge" [class]="txnColor(t.type) === 'success' ? 'verified' : 'rejected'">{{ t.type }}</span></td>
+                  <td>{{ t.description }}</td>
+                  <td [style.color]="txnColor(t.type) === 'success' ? 'var(--success)' : 'var(--danger)'">
+                    {{ txnColor(t.type) === 'success' ? '+' : '-' }}₹{{ t.amount | number:'1.2-2' }}
+                  </td>
+                  <td>₹{{ t.balance_after | number:'1.2-2' }}</td>
+                </tr>
+              }
+              @empty { <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No transactions yet</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Withdraw -->
+    <mat-tab label="Withdraw">
+      <div style="padding-top:16px">
+        @if (banks.length === 0) {
+          <div class="alert info">Please <a routerLink="/bank-details" style="color:var(--primary)">add a bank account</a> to request withdrawals.</div>
+        } @else {
+          <div class="card" style="max-width:480px">
+            <div class="card-title"><mat-icon>send</mat-icon> Request Withdrawal</div>
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Amount (₹)</mat-label>
+              <input matInput type="number" [(ngModel)]="withdrawForm.amount" min="100" />
+              <mat-hint>Minimum ₹100</mat-hint>
+            </mat-form-field>
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Bank Account</mat-label>
+              <mat-select [(ngModel)]="withdrawForm.bank_detail_id">
+                @for (b of banks; track b.id) {
+                  <mat-option [value]="b.id">{{ b.bank_name }} - {{ b.account_number }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Transaction Password</mat-label>
+              <input matInput type="password" [(ngModel)]="withdrawForm.transaction_password" />
+            </mat-form-field>
+            <button mat-raised-button color="primary" class="full-width" style="height:48px" (click)="withdraw()" [disabled]="withdrawing">
+              @if (withdrawing) { <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner> }
+              Request Withdrawal
+            </button>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- Withdrawal History -->
+    <mat-tab label="Withdrawal History">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Amount</th><th>Bank</th><th>Status</th><th>Processed</th></tr>
+            </thead>
+            <tbody>
+              @for (w of withdrawals; track w.id) {
+                <tr>
+                  <td>{{ w.created_at | date:'dd MMM yyyy' }}</td>
+                  <td>₹{{ w.amount | number:'1.2-2' }}</td>
+                  <td>{{ w.bank_name || '—' }} ({{ w.account_number || '—' }})</td>
+                  <td><span class="badge" [class]="w.status === 'approved' ? 'active' : w.status === 'rejected' ? 'inactive' : 'pending'">{{ w.status }}</span></td>
+                  <td>{{ w.processed_at ? (w.processed_at | date:'dd MMM yyyy') : '—' }}</td>
+                </tr>
+              }
+              @empty { <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No withdrawal requests</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

@@ -1,0 +1,139 @@
+<div class="auth-page" style="align-items:flex-start;padding:32px 16px">
+  <div class="auth-card" style="max-width:560px">
+    <div class="auth-logo">
+      <img src="/trilink-logo.svg" alt="TriLink Logo" style="height:56px;margin-bottom:8px">
+      <h1>TriLink</h1>
+      <p>New Member Registration</p>
+    </div>
+
+    @if (error)   { <div class="alert error">{{ error }}</div> }
+    @if (success) { <div class="alert success">{{ success }}</div> }
+
+    <!-- Step 1: Referral Code -->
+    @if (step === 1) {
+      <h3 style="margin:0 0 16px;color:var(--text-muted)">Step 1: Verify Referral Code</h3>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Referral Code</mat-label>
+        <mat-icon matPrefix>card_membership</mat-icon>
+        <input matInput [(ngModel)]="referralCode" placeholder="e.g. TDVROOT001" style="text-transform:uppercase" />
+      </mat-form-field>
+      <button mat-raised-button color="primary" class="full-width" style="height:48px"
+        (click)="checkReferral()" [disabled]="checkingCode">
+        @if (checkingCode) { <mat-spinner diameter="20" style="display:inline-block;margin-right:8px"></mat-spinner> }
+        Verify Code &amp; Proceed
+      </button>
+    }
+
+    <!-- Step 2: Registration Form -->
+    @if (step === 2) {
+      <div class="alert info" style="margin-bottom:20px">
+        Sponsor: <strong>{{ sponsorInfo?.name }}</strong> ({{ sponsorInfo?.associateId }})
+        <button mat-button color="primary" style="float:right;margin:-6px -8px 0 0" (click)="step=1">Change</button>
+      </div>
+
+      <h3 style="margin:0 0 16px;color:var(--text-muted)">Step 2: Personal Details</h3>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Full Name *</mat-label>
+          <input matInput [(ngModel)]="form.full_name" required />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Father / Husband Name</mat-label>
+          <input matInput [(ngModel)]="form.father_husband_name" />
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Mobile Number *</mat-label>
+          <input matInput [(ngModel)]="form.mobile" maxlength="10" required />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput [(ngModel)]="form.email" type="email" />
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Date of Birth</mat-label>
+          <input matInput [(ngModel)]="form.date_of_birth" type="date" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Gender</mat-label>
+          <mat-select [(ngModel)]="form.gender">
+            <mat-option value="male">Male</mat-option>
+            <mat-option value="female">Female</mat-option>
+            <mat-option value="other">Other</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Marital Status</mat-label>
+          <mat-select [(ngModel)]="form.marital_status">
+            <mat-option value="single">Single</mat-option>
+            <mat-option value="married">Married</mat-option>
+            <mat-option value="divorced">Divorced</mat-option>
+            <mat-option value="widowed">Widowed</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Position *</mat-label>
+          <mat-select [(ngModel)]="form.position" required>
+            @for (pos of availablePositions; track pos) {
+              <mat-option [value]="pos">{{ pos | titlecase }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Address</mat-label>
+        <textarea matInput [(ngModel)]="form.address" rows="2"></textarea>
+      </mat-form-field>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>State</mat-label>
+          <input matInput [(ngModel)]="form.state" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>District</mat-label>
+          <input matInput [(ngModel)]="form.district" />
+        </mat-form-field>
+      </div>
+
+      <h3 style="margin:16px 0 12px;color:var(--text-muted)">Set Passwords</h3>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Login Password *</mat-label>
+          <input matInput [type]="showPassword ? 'text' : 'password'" [(ngModel)]="form.password" required />
+          <button mat-icon-button matSuffix (click)="showPassword=!showPassword" type="button">
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Transaction Password *</mat-label>
+          <input matInput type="password" [(ngModel)]="form.transaction_password" required />
+        </mat-form-field>
+      </div>
+
+      <mat-checkbox [(ngModel)]="form.terms_accepted" color="primary" style="margin-bottom:20px">
+        I accept the <a href="javascript:void(0)" style="color:var(--primary)">Terms &amp; Conditions</a>
+      </mat-checkbox>
+
+      <button mat-raised-button color="primary" class="full-width" style="height:48px;font-size:1rem"
+        (click)="register()" [disabled]="loading">
+        @if (loading) { <mat-spinner diameter="20" style="display:inline-block;margin-right:8px"></mat-spinner> }
+        Complete Registration
+      </button>
+    }
+
+    <div style="text-align:center;margin-top:20px;font-size:.9rem;color:#6b7280">
+      Already a member? <a routerLink="/login" style="color:var(--primary);font-weight:600">Login here</a>
+    </div>
+  </div>
+</div>

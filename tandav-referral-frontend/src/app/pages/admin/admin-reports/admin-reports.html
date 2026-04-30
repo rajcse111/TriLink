@@ -1,0 +1,77 @@
+<div class="page-wrapper">
+  <h2 style="margin:0 0 20px">Reports</h2>
+
+  @if (loading) { <div class="loading-overlay"><mat-spinner diameter="40"></mat-spinner></div> }
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+
+  <mat-tab-group>
+
+    <!-- User Growth -->
+    <mat-tab label="User Growth">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Date</th><th>Registered</th><th>Activated</th><th>Activation Rate</th></tr></thead>
+            <tbody>
+              @for (r of userGrowth; track r.date) {
+                <tr>
+                  <td>{{ r.date | date:'dd MMM yyyy' }}</td>
+                  <td>{{ r.registered }}</td>
+                  <td>{{ r.activated }}</td>
+                  <td>{{ r.registered > 0 ? ((r.activated / r.registered) * 100 | number:'1.0-0') : 0 }}%</td>
+                </tr>
+              }
+              @empty { <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:32px">No data</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Revenue -->
+    <mat-tab label="Revenue">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Date</th><th>Activation Rev.</th><th>Level Income</th><th>Stage Bonus</th><th>Withdrawals</th></tr></thead>
+            <tbody>
+              @for (r of revenue; track r.date) {
+                <tr>
+                  <td>{{ r.date | date:'dd MMM yyyy' }}</td>
+                  <td>₹{{ r.activation_revenue | number:'1.0-0' }}</td>
+                  <td>₹{{ r.level_income_paid | number:'1.0-0' }}</td>
+                  <td>₹{{ r.stage_bonus_paid  | number:'1.0-0' }}</td>
+                  <td>₹{{ r.withdrawals       | number:'1.0-0' }}</td>
+                </tr>
+              }
+              @empty { <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No data</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Stage Completion -->
+    <mat-tab label="Stage Completion">
+      <div style="padding-top:16px">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Stage</th><th>Completions</th><th>Total Bonus Paid</th><th>Avg Team Size</th></tr></thead>
+            <tbody>
+              @for (s of stageCompletion; track s.stage) {
+                <tr>
+                  <td>Stage {{ s.stage }}</td>
+                  <td>{{ s.completions }}</td>
+                  <td style="color:var(--success);font-weight:600">₹{{ s.total_bonus_paid | number:'1.0-0' }}</td>
+                  <td>{{ s.avg_nodes | number:'1.0-0' }}</td>
+                </tr>
+              }
+              @empty { <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:32px">No data</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

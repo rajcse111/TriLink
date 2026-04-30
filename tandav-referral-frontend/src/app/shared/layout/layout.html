@@ -1,0 +1,64 @@
+<div class="app-shell" [class.sidebar-collapsed]="!sidebarOpen()">
+
+  <!-- Mobile overlay — tap outside to close sidebar -->
+  <div class="sidebar-overlay" (click)="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="logo"><img src="/trilink-logo.svg" alt="TriLink" style="height:24px;vertical-align:middle;margin-right:6px"> TriLink</span>
+      <button mat-icon-button (click)="toggleSidebar()" class="toggle-btn">
+        <mat-icon>{{ sidebarOpen() ? 'menu_open' : 'menu' }}</mat-icon>
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ (auth.currentUser()?.fullName || 'U')[0] }}</div>
+      @if (sidebarOpen()) {
+        <div class="user-info">
+          <div class="user-name">{{ auth.currentUser()?.fullName }}</div>
+          <div class="user-id">{{ auth.currentUser()?.associateId }}</div>
+          <span class="badge" [class.active]="auth.currentUser()?.isActive" [class.inactive]="!auth.currentUser()?.isActive">
+            {{ auth.currentUser()?.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      }
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a [routerLink]="item.route" routerLinkActive="active" class="nav-item">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          @if (sidebarOpen()) { <span>{{ item.label }}</span> }
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="nav-item" (click)="logout()" style="cursor:pointer">
+        <mat-icon>logout</mat-icon>
+        @if (sidebarOpen()) { <span>Logout</span> }
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <!-- Top bar -->
+    <header class="topbar">
+      <button mat-icon-button (click)="toggleSidebar()" class="mobile-toggle">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <div class="topbar-title">TriLink Network</div>
+      <div class="topbar-actions">
+        <span class="stage-chip">Stage {{ auth.currentUser()?.stage || 0 }}</span>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="page-content">
+      <router-outlet />
+    </main>
+  </div>
+
+</div>

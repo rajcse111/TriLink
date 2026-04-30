@@ -1,0 +1,43 @@
+<div class="admin-shell" [class.sidebar-collapsed]="!sidebarOpen()">
+
+  <!-- Mobile overlay — tap outside to close sidebar -->
+  <div class="admin-sidebar-overlay" (click)="toggleSidebar()"></div>
+
+  <aside class="admin-sidebar">
+    <div class="admin-logo"><img src="/trilink-logo.svg" alt="TriLink" style="height:24px;vertical-align:middle;margin-right:6px"> TriLink Admin</div>
+    <nav>
+      @for (item of navItems; track item.route) {
+        <a [routerLink]="item.route" routerLinkActive="active" class="nav-item"
+           (click)="sidebarOpen.set(false)">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="admin-footer">
+      <div class="admin-user">
+        <mat-icon>admin_panel_settings</mat-icon>
+        <span>{{ auth.currentAdmin()?.username || 'Admin' }}</span>
+      </div>
+      <button mat-icon-button (click)="auth.adminLogout()" title="Logout">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <button mat-icon-button class="admin-mobile-toggle" (click)="toggleSidebar()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span style="font-weight:700;font-size:1rem;color:var(--primary)">TriLink Admin Panel</span>
+      <span style="margin-left:auto;font-size:.85rem;color:var(--text-muted)">
+        {{ auth.currentAdmin()?.role | titlecase }} — {{ auth.currentAdmin()?.email }}
+      </span>
+    </header>
+    <main style="flex:1;overflow-y:auto">
+      <router-outlet />
+    </main>
+  </div>
+
+</div>

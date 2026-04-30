@@ -1,0 +1,38 @@
+<div class="page-wrapper">
+  <h2 style="margin:0 0 20px">Upcoming Meetings</h2>
+
+  @if (loading) { <div class="loading-overlay"><mat-spinner diameter="40"></mat-spinner></div> }
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+
+  @if (!loading) {
+    @if (meetings.length === 0) {
+      <div class="card" style="text-align:center;color:var(--text-muted);padding:48px">
+        <mat-icon style="font-size:48px;width:48px;height:48px;margin-bottom:12px">event_busy</mat-icon>
+        <div>No meetings scheduled.</div>
+      </div>
+    } @else {
+      <div style="display:grid;gap:16px">
+        @for (m of meetings; track m.id) {
+          <div class="card" style="border-left:4px solid var(--primary)">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
+              <div>
+                <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">{{ m.meeting_type | titlecase }}</div>
+                <h3 style="margin:0 0 6px;font-size:1.1rem">{{ m.description || 'Meeting' }}</h3>
+                <div style="color:var(--text-muted);font-size:.9rem;display:flex;flex-wrap:wrap;gap:16px">
+                  <span><mat-icon style="font-size:16px;vertical-align:middle">calendar_today</mat-icon> {{ m.meeting_date | date:'fullDate' }}</span>
+                  <span><mat-icon style="font-size:16px;vertical-align:middle">schedule</mat-icon> {{ m.meeting_time }}</span>
+                  <span><mat-icon style="font-size:16px;vertical-align:middle">location_on</mat-icon> {{ m.venue }}, {{ m.city }}, {{ m.state }}</span>
+                </div>
+              </div>
+              <div style="text-align:right;font-size:.85rem;color:var(--text-muted)">
+                <div>Contact: <strong>{{ m.contact_person }}</strong></div>
+                <div>{{ m.mobile_no }}</div>
+                @if (m.email) { <div>{{ m.email }}</div> }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

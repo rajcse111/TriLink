@@ -1,0 +1,44 @@
+# =========================
+# Node / Express (server)
+# =========================
+/tandav-referral-api/node_modules/
+/tandav-referral-api/dist/
+/tandav-referral-api/build/
+/tandav-referral-api/.env
+
+# Logs
+/tandav-referral-api/logs/
+tandav-referral-api/*.log
+
+# =========================
+# Angular (client)
+# =========================
+/tandav-referral-frontend/node_modules/
+/tandav-referral-frontend/dist/
+/tandav-referral-frontend/.angular/
+/tandav-referral-frontend/out-tsc/
+/tandav-referral-frontend/coverage/
+
+# Environment files
+/tandav-referral-frontend/src/environments/environment*.ts
+
+# =========================
+# Shared / global ignores
+# =========================
+# Logs
+*.log
+requirement.jpeg
+requirement document.pdf
+New Doc 03-09-2026 22.12.pdf
+CLAUDE.md
+.claude
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo

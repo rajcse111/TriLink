@@ -1,0 +1,354 @@
+@use '@angular/material' as mat;
+
+// Include Angular Material core
+@include mat.core();
+
+// TriLink theme — deep red primary, gold accent
+$trilink-primary: mat.m2-define-palette(mat.$m2-red-palette, 800);
+$trilink-accent:  mat.m2-define-palette(mat.$m2-amber-palette, 600);
+$trilink-warn:    mat.m2-define-palette(mat.$m2-red-palette, 600);
+
+$trilink-theme: mat.m2-define-light-theme((
+  color: (primary: $trilink-primary, accent: $trilink-accent, warn: $trilink-warn)
+));
+
+@include mat.all-component-themes($trilink-theme);
+
+// ── Global resets & base ───────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  background: #f5f6fa;
+  color: #1a1a2e;
+  overflow-x: hidden;          // prevent horizontal scrollbars from box-shadow / gradients
+  -webkit-text-size-adjust: 100%;
+}
+
+// ── CSS Variables ──────────────────────────────────────────────────
+:root {
+  --primary:      #b71c1c;
+  --primary-dark: #7f0000;
+  --accent:       #f9a825;
+  --success:      #2e7d32;
+  --danger:       #c62828;
+  --warning:      #f57f17;
+  --info:         #1565c0;
+  --bg:           #f5f6fa;
+  --card:         #ffffff;
+  --border:       #e0e0e0;
+  --text:         #1a1a2e;
+  --text-muted:   #6b7280;
+  --sidebar-w:    240px;
+}
+
+// ── Utility Classes ────────────────────────────────────────────────
+.page-wrapper {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  border-left: 4px solid var(--primary);
+  &.accent  { border-left-color: var(--accent); }
+  &.success { border-left-color: var(--success); }
+  &.info    { border-left-color: var(--info); }
+  &.warning { border-left-color: var(--warning); }
+
+  .stat-label  { font-size: .8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+  .stat-value  { font-size: 1.8rem; font-weight: 700; color: var(--text); margin: 4px 0 0; }
+  .stat-sub    { font-size: .75rem; color: var(--text-muted); margin-top: 4px; }
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: .75rem;
+  font-weight: 600;
+  &.active    { background: #e8f5e9; color: #2e7d32; }
+  &.inactive  { background: #ffebee; color: #c62828; }
+  &.pending   { background: #fff8e1; color: #f57f17; }
+  &.verified  { background: #e3f2fd; color: #1565c0; }
+  &.rejected  { background: #ffebee; color: #c62828; }
+  &.approved  { background: #e8f5e9; color: #2e7d32; }
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: .9rem;
+    }
+
+    th {
+      background: #fafafa;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+
+  // Make Material form-fields stretch to fill their grid cell.
+  // Without this, mat-form-field renders narrower than its column in Chrome,
+  // producing the "misaligned / floating fields" look on the register page.
+  > mat-form-field,
+  > .mat-mdc-form-field {
+    width: 100%;
+  }
+}
+
+.full-width { width: 100%; }
+
+.actions-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: .9rem;
+  margin-bottom: 16px;
+  &.error   { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+  &.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+  &.info    { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+  &.warning { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
+}
+
+.loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: var(--text-muted);
+  gap: 12px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  font-size: .9rem;
+  color: var(--text-muted);
+}
+
+// Tree view
+.tree-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  .node-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-align: center;
+    min-width: 120px;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s;
+
+    &.active   { border-color: var(--success); }
+    &.inactive { border-color: var(--border); opacity: .7; }
+
+    &:hover { box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+
+    .node-id   { font-weight: 700; color: var(--primary); font-size: .85rem; }
+    .node-name { color: var(--text); font-size: .78rem; margin: 2px 0; }
+    .node-stage { font-size: .72rem; color: var(--text-muted); }
+  }
+
+  .node-connector {
+    width: 2px;
+    height: 20px;
+    background: var(--border);
+  }
+
+  .node-children {
+    display: flex;
+    gap: 20px;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 60px);
+      height: 2px;
+      background: var(--border);
+    }
+  }
+}
+
+// Auth pages
+.auth-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  // `safe center` prevents the card's top edge from being pushed off-screen
+  // when the card is taller than the viewport (the register form on mobile).
+  // Falls back to `center` in older engines.
+  align-items: center;
+  align-items: safe center;
+  justify-content: center;
+  background: linear-gradient(135deg, #7f0000 0%, #b71c1c 50%, #c62828 100%);
+  padding: 24px;
+  // Allow the page itself to scroll if content overflows vertically.
+  overflow-y: auto;
+
+  .auth-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    // `margin: auto` cooperates with `safe center` so the card stays centered
+    // when there's room and scrolls naturally when there isn't.
+    margin: auto;
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 28px;
+      h1 { font-size: 2rem; color: var(--primary); font-weight: 800; margin: 0; }
+      p  { color: var(--text-muted); font-size: .9rem; margin: 4px 0 0; }
+    }
+
+    // Constrain mat-tab-group inside the auth card so labels share width
+    // evenly and don't trigger Material's pagination arrows on narrow screens.
+    .mat-mdc-tab-header,
+    .mat-mdc-tab-label-container,
+    .mat-mdc-tab-list { width: 100%; }
+    .mat-mdc-tab { flex: 1 1 0; min-width: 0; }
+    .mdc-tab__text-label { white-space: nowrap; }
+
+    // Material outline form-fields default to inline-block; force block-stretch
+    // so they always fill the auth card width.
+    .mat-mdc-form-field { width: 100%; }
+  }
+}
+
+// ── Mobile responsive ─────────────────────────────────────────────
+@media (max-width: 480px) {
+  .page-wrapper { padding: 16px 12px; }
+
+  .auth-page {
+    padding: 12px;
+    // On phones, anchor to the top so the logo is the first thing visible
+    // — avoids the empty-gradient-then-cropped-card look in Chrome mobile.
+    align-items: flex-start;
+
+    .auth-card {
+      padding: 24px 18px;
+      border-radius: 12px;
+      margin: 0 auto;
+    }
+
+    // Slightly smaller tab labels on tiny screens so both fit without ellipsis.
+    .auth-card .mdc-tab__text-label { font-size: .85rem; }
+    .auth-card .auth-logo h1 { font-size: 1.6rem; }
+  }
+}
+
+// ── File input Chrome cross-browser fix ───────────────────────────
+input[type="file"] {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .875rem;
+  font-family: inherit;
+  color: var(--text);
+  background: #fafafa;
+  cursor: pointer;
+  transition: border-color .2s;
+
+  &:hover { border-color: var(--primary); }
+  &:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+
+  &::file-selector-button {
+    padding: 4px 12px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 4px;
+    background: var(--primary);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .2s;
+    &:hover { background: var(--primary-dark); }
+  }
+}
+
+// ── mat-spinner alignment fix inside buttons ──────────────────────
+button mat-spinner,
+button .mat-mdc-progress-spinner {
+  display: inline-flex !important;
+  vertical-align: middle;
+}

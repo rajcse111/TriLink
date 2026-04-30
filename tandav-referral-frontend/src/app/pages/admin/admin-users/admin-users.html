@@ -1,0 +1,112 @@
+<div class="page-wrapper">
+  <h2 style="margin:0 0 20px">User Management</h2>
+
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+  @if (success) { <div class="alert success">{{ success }}</div> }
+
+  <!-- Credit Wallet Modal -->
+  @if (selectedUser) {
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center">
+      <div style="background:#fff;border-radius:12px;padding:28px;width:400px;max-width:90vw">
+        <h3 style="margin:0 0 16px">Credit Wallet — {{ selectedUser.full_name }}</h3>
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Amount (₹)</mat-label>
+          <input matInput type="number" [(ngModel)]="creditAmount" />
+        </mat-form-field>
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Note</mat-label>
+          <input matInput [(ngModel)]="creditNote" />
+        </mat-form-field>
+        <div style="display:flex;gap:12px">
+          <button mat-raised-button color="primary" (click)="creditWallet()">Credit</button>
+          <button mat-stroked-button (click)="selectedUser=null">Cancel</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="actions-row">
+    <mat-form-field appearance="outline" style="min-width:220px">
+      <mat-label>Search</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [(ngModel)]="search" (keyup.enter)="load()" placeholder="Name, mobile, ID..." />
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="min-width:140px">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="status" (selectionChange)="load()">
+        <mat-option value="">All</mat-option>
+        <mat-option value="active">Active</mat-option>
+        <mat-option value="inactive">Inactive</mat-option>
+        <mat-option value="retired">Retired</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="load()"><mat-icon>search</mat-icon> Search</button>
+    <span style="margin-left:auto;color:var(--text-muted);font-size:.9rem">Total: {{ total }}</span>
+  </div>
+
+  @if (loading) { <div class="loading-overlay"><mat-spinner diameter="40"></mat-spinner></div> }
+  @else {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Associate ID</th><th>Name</th><th>Mobile</th><th>Stage</th>
+            <th>Status</th><th>KYC</th><th>Balance</th><th>Joined</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of users; track u.id) {
+            <tr>
+              <td><code>{{ u.associate_id }}</code></td>
+              <td>{{ u.full_name }}</td>
+              <td>{{ u.mobile }}</td>
+              <td>{{ u.current_stage }}</td>
+              <td><span class="badge" [class.active]="u.is_active" [class.inactive]="!u.is_active">{{ u.is_active ? 'Active' : 'Inactive' }}</span></td>
+              <td><span class="badge" [class]="u.kyc_status === 'verified' ? 'verified' : 'pending'">{{ u.kyc_status || '—' }}</span></td>
+              <td>₹{{ u.wallet_balance | number:'1.0-0' }}</td>
+              <td>{{ u.registration_date | date:'dd MMM yy' }}</td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  @if (!u.is_active) {
+                    <button mat-icon-button color="primary" title="Activate" (click)="activateUser(u.id)">
+                      <mat-icon>check_circle</mat-icon>
+                    </button>
+                  } @else if (deactivatingId === u.id) {
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                      <input [(ngModel)]="deactivateReason" placeholder="Reason (optional)"
+                             style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.8rem;width:150px" />
+                      <div style="display:flex;gap:4px">
+                        <button mat-icon-button color="warn" title="Confirm deactivate" (click)="submitDeactivate()">
+                          <mat-icon>check</mat-icon>
+                        </button>
+                        <button mat-icon-button title="Cancel" (click)="cancelDeactivate()">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  } @else {
+                    <button mat-icon-button color="warn" title="Deactivate" (click)="startDeactivate(u.id)">
+                      <mat-icon>block</mat-icon>
+                    </button>
+                  }
+                  <button mat-icon-button color="accent" title="Credit Wallet" (click)="selectedUser=u;creditAmount=0;creditNote=''">
+                    <mat-icon>add_card</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @empty { <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:32px">No users found</td></tr> }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button mat-icon-button [disabled]="page <= 1" (click)="page=page-1;load()"><mat-icon>chevron_left</mat-icon></button>
+      <span>Page {{ page }} of {{ totalPages() }}</span>
+      <button mat-icon-button [disabled]="page >= totalPages()" (click)="page=page+1;load()"><mat-icon>chevron_right</mat-icon></button>
+    </div>
+  }
+</div>

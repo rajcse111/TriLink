@@ -1,0 +1,62 @@
+<div class="page-wrapper">
+  <h2 style="margin:0 0 20px">KYC Verification Queue</h2>
+
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+  @if (success) { <div class="alert success">{{ success }}</div> }
+  @if (loading) { <div class="loading-overlay"><mat-spinner diameter="40"></mat-spinner></div> }
+  @else {
+    @if (kycs.length === 0) {
+      <div class="card" style="text-align:center;color:var(--text-muted);padding:48px">
+        <mat-icon style="font-size:48px;width:48px;height:48px;color:#c8e6c9">check_circle</mat-icon>
+        <div style="margin-top:8px">No pending KYC verifications.</div>
+      </div>
+    } @else {
+      @for (k of kycs; track k.id) {
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-weight:700;margin-bottom:4px">{{ k.full_name }} <code style="font-size:.8rem;font-weight:400">{{ k.associate_id }}</code></div>
+              <div style="color:var(--text-muted);font-size:.85rem">{{ k.mobile }}</div>
+              <div style="margin-top:8px">
+                <span class="badge pending" style="margin-right:8px">{{ k.document_type | titlecase }}</span>
+                @if (k.document_number) { <code>{{ k.document_number }}</code> }
+              </div>
+              <div style="margin-top:8px;font-size:.8rem;color:var(--text-muted)">Submitted: {{ k.created_at | date:'dd MMM yyyy HH:mm' }}</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+              @if (k.front_image_url) {
+                <a [href]="apiBase + k.front_image_url" target="_blank" mat-stroked-button>
+                  <mat-icon>image</mat-icon> Front
+                </a>
+              }
+              @if (k.back_image_url) {
+                <a [href]="apiBase + k.back_image_url" target="_blank" mat-stroked-button>
+                  <mat-icon>image</mat-icon> Back
+                </a>
+              }
+              <button mat-raised-button color="primary" (click)="approve(k.id)">
+                <mat-icon>check</mat-icon> Approve
+              </button>
+              @if (pendingRejectId === k.id) {
+                <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+                  <input [(ngModel)]="rejectReason" placeholder="Rejection reason..."
+                         style="border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:.85rem;width:220px" />
+                  <div style="display:flex;gap:6px">
+                    <button mat-raised-button color="warn" (click)="submitReject()" [disabled]="!rejectReason.trim()">
+                      <mat-icon>send</mat-icon> Submit
+                    </button>
+                    <button mat-stroked-button (click)="cancelReject()">Cancel</button>
+                  </div>
+                </div>
+              } @else {
+                <button mat-raised-button color="warn" (click)="startReject(k.id)">
+                  <mat-icon>close</mat-icon> Reject
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

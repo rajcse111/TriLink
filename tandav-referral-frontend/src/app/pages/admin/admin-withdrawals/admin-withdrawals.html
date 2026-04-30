@@ -1,0 +1,53 @@
+<div class="page-wrapper">
+  <h2 style="margin:0 0 20px">Pending Withdrawals</h2>
+
+  @if (error)   { <div class="alert error">{{ error }}</div> }
+  @if (success) { <div class="alert success">{{ success }}</div> }
+  @if (loading) { <div class="loading-overlay"><mat-spinner diameter="40"></mat-spinner></div> }
+  @else {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>User</th><th>Amount</th><th>Bank</th><th>Account</th><th>IFSC</th><th>Requested</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          @for (w of withdrawals; track w.id) {
+            <tr>
+              <td>
+                <div style="font-weight:600">{{ w.full_name }}</div>
+                <div style="font-size:.8rem;color:var(--text-muted)">{{ w.associate_id }} | {{ w.mobile }}</div>
+              </td>
+              <td style="font-weight:700;color:var(--primary);font-size:1.1rem">₹{{ w.amount | number:'1.2-2' }}</td>
+              <td>{{ w.bank_name }}</td>
+              <td><code>{{ w.account_number }}</code></td>
+              <td><code>{{ w.ifsc_code }}</code></td>
+              <td>{{ w.created_at | date:'dd MMM yyyy' }}</td>
+              <td>
+                @if (pendingRejectId === w.id) {
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <input [(ngModel)]="rejectNote" placeholder="Reason..."
+                           style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.8rem;width:160px" />
+                    <div style="display:flex;gap:4px">
+                      <button mat-raised-button color="warn" (click)="submitReject()">Submit</button>
+                      <button mat-stroked-button (click)="cancelReject()">Cancel</button>
+                    </div>
+                  </div>
+                } @else {
+                  <div style="display:flex;gap:6px">
+                    <button mat-raised-button color="primary" (click)="approve(w.id)">
+                      <mat-icon>check</mat-icon> Approve
+                    </button>
+                    <button mat-stroked-button color="warn" (click)="startReject(w.id)">
+                      <mat-icon>close</mat-icon> Reject
+                    </button>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+          @empty { <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px">No pending withdrawals</td></tr> }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
